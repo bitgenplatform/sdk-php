@@ -1,0 +1,26 @@
+{
+    "name": "bitgen/sdk",
+    "version": "0.1.0",
+    "author": "BITGEN",
+    "description": "Official PHP SDK for the BITGEN Crypto-as-a-Service API",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/bitgenplatform/sdk-php",
+    "authors": [
+        {
+            "name": "BITGEN",
+            "homepage": "https://bitgen.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bitgen\\Sdk\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

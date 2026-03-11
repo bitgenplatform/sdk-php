@@ -86,7 +86,6 @@ $history = $client->order->history($userUuid); // Order[]
 
 ```php
 use Bitgen\Sdk\Exception\BitgenException;
-use Bitgen\Sdk\Exception\BitgenRawException;
 
 try {
     $tx = $client->transaction->create([
@@ -99,10 +98,6 @@ try {
     echo $tx->txId;  // "761860cb-..."
     echo $tx->state; // "INITIALIZED"
 
-} catch (BitgenRawException $e) {
-    // HTTP 500 (invalid_asset) or HTTP 400 (missing field) — plain text response
-    echo $e->status;  // 500
-    echo $e->rawBody; // "invalid_asset"
 } catch (BitgenException $e) {
     echo $e->code;       // 406
     echo $e->apiMessage; // "insufficient_funds"
@@ -158,7 +153,6 @@ echo $stats->users->remain; // 989
 | Exception            | When                                               | Properties                                            |
 |----------------------|----------------------------------------------------|-------------------------------------------------------|
 | `BitgenException`    | Any standard API error (JSON body with `error` key) | `status`, `code`, `service`, `module`, `apiMessage`   |
-| `BitgenRawException` | `transaction->create()` only — HTTP 500 / 400      | `status`, `rawBody`                                   |
 
 ```php
 use Bitgen\Sdk\Exception\BitgenException;

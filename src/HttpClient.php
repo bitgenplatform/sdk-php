@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Bitgen\Sdk;
 
 use Bitgen\Sdk\Exception\BitgenException;
-use Bitgen\Sdk\Exception\BitgenRawException;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -68,7 +67,6 @@ class HttpClient
      * Used exclusively by TransactionResource::create().
      * The POST /api/v3/tx endpoint returns HTTP 500 / 400 as plain text.
      *
-     * @throws BitgenRawException
      * @throws BitgenException
      */
     public function postRaw(string $path, array $payload = []): array
@@ -80,9 +78,14 @@ class HttpClient
         $status = $response->getStatusCode();
         $body   = (string) $response->getBody();
 
-        // These two codes come back as plain text — not JSON
+        // These two codes come back as plain text — wrap as standard BitgenException
         if ($status === 500 || $status === 400) {
-            throw new BitgenRawException($status, trim($body));
+            throw BitgenException::fromArray($status, [
+                'code'    => $status,
+                'service' => 'transaction',
+                'module'  => 'create',
+                'message' => trim($body),
+            ]);
         }
 
         return $this->parseStandard($status, $body);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Bitgen\Sdk\Resources;
 
-use Bitgen\Sdk\Exception\BitgenRawException;
 use Bitgen\Sdk\HttpClient;
+
 use Bitgen\Sdk\Models\CreatedTransaction;
 use Bitgen\Sdk\Models\Transaction;
 use Bitgen\Sdk\Models\TransactionHistoryItem;
@@ -17,10 +17,6 @@ class TransactionResource
     /**
      * Create a crypto withdrawal transaction.
      *
-     * ⚠ Throws BitgenRawException (not BitgenException) for:
-     *   - HTTP 500 → invalid_asset (plain text)
-     *   - HTTP 400 → required_index_missing::{index} (plain text)
-     *
      * @param array{
      *     user: string,
      *     asset: string,
@@ -28,8 +24,6 @@ class TransactionResource
      *     targetAddress: string,
      *     targetTag?: string
      * } $params
-     *
-     * @throws BitgenRawException
      */
     public function create(array $params): CreatedTransaction
     {

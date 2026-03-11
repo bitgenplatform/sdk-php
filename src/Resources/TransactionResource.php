@@ -6,6 +6,10 @@ namespace Bitgen\Sdk\Resources;
 
 use Bitgen\Sdk\HttpClient;
 
+use Bitgen\Sdk\Support\UserRef;
+
+use Bitgen\Sdk\Models\UserFull;
+use Bitgen\Sdk\Models\UserListItem;
 use Bitgen\Sdk\Models\CreatedTransaction;
 use Bitgen\Sdk\Models\Transaction;
 use Bitgen\Sdk\Models\TransactionHistoryItem;
@@ -27,8 +31,10 @@ class TransactionResource
      */
     public function create(array $params): CreatedTransaction
     {
+        if (isset($params['user'])) {
+            $params['user'] = UserRef::resolve($params['user']);
+        }
         $data = $this->http->postRaw('/api/v3/tx', $params);
-
         return CreatedTransaction::fromArray($data);
     }
 
@@ -48,13 +54,12 @@ class TransactionResource
      * } $filters
      * @return TransactionHistoryItem[]
      */
-    public function history(string $user, array $filters = []): array
+    public function history(string|UserFull|UserListItem $user, array $filters = []): array
     {
         $data = $this->http->get(
-            '/api/v3/txs/' . rawurlencode($user),
+            '/api/v3/txs/' . rawurlencode(UserRef::resolve($user)),
             array_filter($filters, static fn($v) => $v !== null),
         );
-
         return array_map(
             static fn(array $item) => TransactionHistoryItem::fromArray($item),
             $data,

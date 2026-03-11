@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Bitgen\Sdk\Resources;
 
 use Bitgen\Sdk\HttpClient;
+
+use Bitgen\Sdk\Support\UserRef;
+
+use Bitgen\Sdk\Models\UserFull;
+use Bitgen\Sdk\Models\UserListItem;
 use Bitgen\Sdk\Models\CreatedOrder;
 use Bitgen\Sdk\Models\Order;
 
@@ -24,8 +29,10 @@ class OrderResource
      */
     public function create(array $params): CreatedOrder
     {
+        if (isset($params['user'])) {
+            $params['user'] = UserRef::resolve($params['user']);
+        }
         $data = $this->http->post('/api/v3/order', $params);
-
         return CreatedOrder::fromArray($data);
     }
 
@@ -39,10 +46,9 @@ class OrderResource
     /**
      * @return Order[]
      */
-    public function history(string $user): array
+    public function history(string|UserFull|UserListItem $user): array
     {
-        $data = $this->http->get('/api/v3/orders/' . rawurlencode($user));
-
+        $data = $this->http->get('/api/v3/orders/' . rawurlencode(UserRef::resolve($user)));
         return array_map(static fn(array $item) => Order::fromArray($item), $data);
     }
 }

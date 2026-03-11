@@ -167,7 +167,3 @@ try {
     // $e->status     → HTTP status code
 }
 ```
-
-## License
-
-MIT

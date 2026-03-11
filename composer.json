@@ -1,6 +1,5 @@
 {
     "name": "bitgen/sdk",
-    "version": "0.1.0",
     "author": "BITGEN",
     "description": "Official PHP SDK for the BITGEN Crypto-as-a-Service API",
     "type": "library",

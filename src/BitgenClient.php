@@ -29,6 +29,7 @@ class BitgenClient
      *     env?: 'sandbox'|'production'|'localhost',
      *     host?: string,
      *     port?: int,
+     *     isSsl?: bool,
      * } $config
      */
     public function __construct(array $config)
@@ -38,7 +39,8 @@ class BitgenClient
             apiKey: $config['apiKey'],
             env:    $config['env']  ?? Config::ENV_SANDBOX,
             host:   $config['host'] ?? null,
-            port:   $config['port'] ?? null,
+            port:   $config['port']  ?? null,
+            isSsl:  $config['isSsl'] ?? true,
         );
         $http = new HttpClient($cfg);
 

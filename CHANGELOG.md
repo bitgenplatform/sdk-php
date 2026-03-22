@@ -5,6 +5,9 @@
 - Localhost default port changed from `80` to `14303`
 - Added `isSsl` config option (default `true`) for custom host mode
 
+### Fixed
+- `isSsl` config option now correctly forwarded from `BitgenClient` to `Config`
+
 ## [0.1.5] - 2026-03-11
 
 ### Changed

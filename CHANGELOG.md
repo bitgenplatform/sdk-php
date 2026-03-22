@@ -1,3 +1,10 @@
+## [0.1.6] - 2026-03-22
+
+### Changed
+- Sandbox URL updated from `api.btgn.dev` to `api.staging.btgn.dev`
+- Localhost default port changed from `80` to `14303`
+- Added `isSsl` config option (default `true`) for custom host mode
+
 ## [0.1.5] - 2026-03-11
 
 ### Changed

@@ -13,9 +13,9 @@ readonly class Config
     public const string ENV_LOCALHOST  = 'localhost';
 
     private const array ENV_BASE_URLS = [
-        self::ENV_SANDBOX    => 'https://api.btgn.dev',
+        self::ENV_SANDBOX    => 'https://api.staging.btgn.dev',
         self::ENV_PRODUCTION => 'https://api.bitgen.com',
-        self::ENV_LOCALHOST  => 'http://localhost:80',
+        self::ENV_LOCALHOST  => 'http://localhost:14303',
     ];
 
     public readonly string $baseUrl;
@@ -25,11 +25,13 @@ readonly class Config
         public readonly string $apiKey,
         public readonly string $env  = self::ENV_SANDBOX,
         ?string                $host = null,
-        ?int                   $port = null,
+        ?int                   $port  = null,
+        public readonly bool   $isSsl = true,
     ) {
         if ($host !== null) {
             $port          = $port ?? 80;
-            $this->baseUrl = sprintf('http://%s:%d', $host, $port);
+            $scheme        = $this->isSsl ? 'https' : 'http';
+            $this->baseUrl = sprintf('%s://%s:%d', $scheme, $host, $port);
             return;
         }
 

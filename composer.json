@@ -1,7 +1,7 @@
 {
     "name": "bitgen/sdk",
     "author": "BITGEN",
-    "description": "Official PHP SDK for the BITGEN Crypto-as-a-Service API",
+    "description": "Official PHP SDK for the BITGEN API v3.1.x",
     "type": "library",
     "license": "proprietary",
     "homepage": "https://github.com/bitgenplatform/sdk-php",

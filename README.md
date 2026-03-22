@@ -1,6 +1,6 @@
 # bitgen/sdk
 
-Official PHP SDK for the [BITGEN](https://bitgen.com) Crypto-as-a-Service API.
+Official PHP SDK for the BITGEN API v3.1.x.
 
 ## Requirements
 

@@ -9,7 +9,7 @@ final readonly class WebhookType
 {
     public function __construct(
         public string $uuid,
-        /** `ENABLED` or `ARCHIVED` */
+        /** `SubscriberState` lists the known values: `ENABLED`, `ARCHIVED` */
         public string $state,
         /** The event name (`custody.sent`) — `WebhookEventName` lists the known ones */
         public string $name,

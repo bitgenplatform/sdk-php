@@ -12,7 +12,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 | `get($apikey)` | Reads one key | `Apikey` |
 | `logs($apikey, ...)` | Lists the calls made with a key | `Page<ApikeyLog>` |
 
-Models of this resource, under `Bitgen\Sdk\Model`: `Apikey`, `ApikeyOrganization`, `ApikeyHub`, `ApikeyOwner`, `ApikeyLog`.
+Models of this resource, under `Bitgen\Sdk\Model`: `Apikey`, `ApikeyOrganization`, `ApikeyHub`, `ApikeyOwner`, `ApikeyLog` — and the constant class `ApikeyState`.
 
 ## list
 
@@ -22,7 +22,7 @@ $client->apikeys->list(?bool $includeRevoked = null, ?int $offset = null, ?int $
 
 | Argument | Type | Description |
 |---|---|---|
-| `includeRevoked` | `?bool` | Also returns the `REVOKED` keys — default `false` ([Query booleans](../concepts.md#query-booleans)) |
+| `includeRevoked` | `?bool` | Also returns the `ApikeyState::REVOKED` keys — default `false` ([Query booleans](../concepts.md#query-booleans)) |
 | `offset`, `limit` | `?int` | [Pagination](../concepts.md#pagination) |
 
 ```php
@@ -58,7 +58,7 @@ Returns an `Apikey`:
 | Property | Description |
 |---|---|
 | `uuid` | The key |
-| `state` | `ENABLED` or `REVOKED` |
+| `state` | `ApikeyState::ENABLED` or `ApikeyState::REVOKED` — a string; the `ApikeyState` constants name the known values |
 | `name` | Label given at creation |
 | `permissions` | What the key is allowed to do, as set by BITGEN — a list of strings |
 | `expireAt`, `createdAt` | Epoch seconds |

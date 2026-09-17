@@ -6,6 +6,7 @@ namespace Bitgen\Sdk\Tests\Resource;
 
 use Bitgen\Sdk\Exception\BitgenException;
 use Bitgen\Sdk\Http\HttpClient;
+use Bitgen\Sdk\Model\SubscriberState;
 use Bitgen\Sdk\Model\WebhookEventName;
 use Bitgen\Sdk\Resource\WebhooksResource;
 use Bitgen\Sdk\Tests\Http\FakeTransport;
@@ -87,14 +88,14 @@ final class WebhooksResourceTest extends TestCase
         self::assertSame('https://example.com/bitgen', $subscriptions->endpoint);
         self::assertCount(2, $subscriptions->items);
         self::assertSame('sub-1', $subscriptions->items[0]->uuid);
-        self::assertSame('ENABLED', $subscriptions->items[0]->state);
+        self::assertSame(SubscriberState::ENABLED, $subscriptions->items[0]->state);
         self::assertSame(1700000000, $subscriptions->items[0]->updatedAt);
         self::assertSame('wh-1', $subscriptions->items[0]->webhook->uuid);
-        self::assertSame('ENABLED', $subscriptions->items[0]->webhook->state);
+        self::assertSame(SubscriberState::ENABLED, $subscriptions->items[0]->webhook->state);
         self::assertSame(WebhookEventName::CUSTODY_SENT, $subscriptions->items[0]->webhook->name);
         self::assertSame('{"fr":"Envoi","en":"Sent"}', $subscriptions->items[0]->webhook->label);
         self::assertSame('{}', $subscriptions->items[0]->webhook->data);
-        self::assertSame('ARCHIVED', $subscriptions->items[1]->state);
+        self::assertSame(SubscriberState::ARCHIVED, $subscriptions->items[1]->state);
         self::assertSame(WebhookEventName::TRADING_BUY, $subscriptions->items[1]->webhook->name);
 
         $this->transport->willAnswer(200, self::json(['secret' => 's', 'endpoint' => 'https://example.com', 'items' => []]));
@@ -172,7 +173,7 @@ final class WebhooksResourceTest extends TestCase
         $type = $this->webhooks->catalogItem('wh-1');
         self::assertSame('https://api.test/webhook/wh-1', $this->transport->last()['url']);
         self::assertSame('wh-1', $type->uuid);
-        self::assertSame('ENABLED', $type->state);
+        self::assertSame(SubscriberState::ENABLED, $type->state);
         self::assertSame('{"fr":"Envoi","en":"Sent"}', $type->label);
         self::assertSame('{}', $type->data);
     }

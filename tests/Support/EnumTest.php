@@ -8,6 +8,7 @@ use Bitgen\Sdk\Asset;
 use Bitgen\Sdk\Env;
 use Bitgen\Sdk\Model\BankDirection;
 use Bitgen\Sdk\Model\Locale;
+use Bitgen\Sdk\Model\OrganizationCategory;
 use Bitgen\Sdk\Model\TradingDirection;
 use Bitgen\Sdk\Model\WebhookEventName;
 use Bitgen\Sdk\Support\Enum;
@@ -31,6 +32,7 @@ final class EnumTest extends TestCase
             ['deposit', BankDirection::VALUES, 'direction', 'direction must be ALL, DEPOSIT, WITHDRAWAL, PURCHASE or SELL'],
             ['Sandbox', Env::VALUES, 'env', 'env must be production, sandbox, staging or localhost'],
             ['', Locale::VALUES, 'locale', 'locale must be FR or EN'],
+            ['BUSINESS', OrganizationCategory::VALUES, 'organization', 'organization must be CUSTOMER or B2B'],
         ];
         foreach ($cases as [$value, $values, $name, $message]) {
             try {
@@ -53,7 +55,7 @@ final class EnumTest extends TestCase
                 $classes[] = $class;
             }
         }
-        self::assertCount(22, $classes);
+        self::assertCount(25, $classes);   // Env, Asset + the 23 value classes of src/Model/ (mirror of the JS constants)
         foreach ($classes as $class) {
             $reflection = new \ReflectionClass($class);
             self::assertTrue($reflection->isFinal(), $class);

@@ -6,6 +6,7 @@ namespace Bitgen\Sdk\Tests\Resource;
 
 use Bitgen\Sdk\Exception\BitgenException;
 use Bitgen\Sdk\Http\HttpClient;
+use Bitgen\Sdk\Model\ApikeyState;
 use Bitgen\Sdk\Resource\ApikeysResource;
 use Bitgen\Sdk\Tests\Http\FakeTransport;
 use Bitgen\Sdk\Tests\TypeErrors;
@@ -64,7 +65,7 @@ final class ApikeysResourceTest extends TestCase
 
         self::assertSame('https://api.test/organization/org-uuid/apikeys/key-1', $this->transport->last()['url']);
         self::assertSame('key-1', $key->uuid);
-        self::assertSame('ENABLED', $key->state);
+        self::assertSame(ApikeyState::ENABLED, $key->state);
         self::assertSame('backend', $key->name);
         self::assertSame(['customer.read', 'bank.read', 'custody.write'], $key->permissions);
         self::assertSame(1735689600, $key->expireAt);
@@ -88,7 +89,7 @@ final class ApikeysResourceTest extends TestCase
         $this->transport->willAnswer(200, self::json(['uuid' => 'key-2', 'state' => 'REVOKED', 'name' => 'old', 'permissions' => [], 'expireAt' => 1700000000, 'createdAt' => 1690000000, 'organization' => ['uuid' => 'org/1', 'state' => 'ENABLED', 'name' => 'ACME', 'hub' => null, 'owner' => null]]));
         $revoked = $apikeys->get('key-2');
         self::assertSame('https://api.test/organization/org%2F1/apikeys/key-2', $this->transport->last()['url']);
-        self::assertSame('REVOKED', $revoked->state);
+        self::assertSame(ApikeyState::REVOKED, $revoked->state);
         self::assertSame([], $revoked->permissions);
         self::assertNull($revoked->organization->hub);
         self::assertNull($revoked->organization->owner);

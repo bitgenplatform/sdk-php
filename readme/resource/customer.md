@@ -13,7 +13,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 | `get($user)` | Reads one account: identity files, details, settings | `Account` |
 | `update($user, ...)` | Updates the settings a key may write: theme, locale, notifications | `void` |
 
-Models of this resource, under `Bitgen\Sdk\Model`: `Created`, `Customer`, `CustomerAccount`, `AccountAddress`, `CustomerClient`, `CustomerAction`, `CustomerSetup`, `CustomerCollaborations`, `CollaboratorLink`, `ManagerLink`, `CustomerAlert`, `CustomerBusiness`, `Account`, `AccountNotifications`, `Identity` (`KycIdentity`, `KybIdentity`), `KycIdentityForm`, `KybIdentityForm`, `IdentityData`, `IdentityStep` — and the constant classes `CustomerState`, `IdentityState`, `IdentityMode`, `Locale`.
+Models of this resource, under `Bitgen\Sdk\Model`: `Created`, `Customer`, `CustomerAccount`, `AccountAddress`, `CustomerClient`, `CustomerAction`, `CustomerSetup`, `CustomerCollaborations`, `CollaboratorLink`, `ManagerLink`, `CustomerAlert`, `CustomerBusiness`, `Account`, `AccountNotifications`, `Identity` (`KycIdentity`, `KybIdentity`), `KycIdentityForm`, `KybIdentityForm`, `IdentityData`, `IdentityStep` — and the constant classes `CustomerState`, `IdentityState`, `IdentityMode`, `Locale`, `OrganizationCategory`.
 
 ## create
 
@@ -30,12 +30,13 @@ $client->customer->create(string $email, string $manager, ?string $firstname = n
 | `needActivation` | `?bool` | Default `true`: BITGEN emails the customer an activation link and the account stays `CREATED` (the bank, custody, trading and staking resources do not accept it) until they activate. `false`: the account is usable right away and BITGEN sends no email — for an organization that handles activation and notifications with its own system, or through webhooks |
 | `notify` | `?bool` | Default `true`: the customer receives BITGEN's emails (newsletter). `false`: none |
 | `locale` | `?string` | `Locale::FR` (default) or `Locale::EN` — anything else is refused before any request |
-| `organization` | `?string` | Category: `CUSTOMER` (default) or `B2B` — `B2B` also opens a KYB file. `BUSINESS` is reserved to BITGEN administrators: the SDK refuses it before any request |
+| `organization` | `?string` | Category: `OrganizationCategory::CUSTOMER` (default) or `OrganizationCategory::B2B` — `B2B` also opens a KYB file. `BUSINESS` is reserved to BITGEN administrators: like any other value, the SDK refuses it before any request |
 
 ```php
 <?php
 
 use Bitgen\Sdk\Model\Locale;
+use Bitgen\Sdk\Model\OrganizationCategory;
 
 $customer = $client->customer->create(
     email: 'jean@valjean.fr',
@@ -43,6 +44,7 @@ $customer = $client->customer->create(
     firstname: 'Jean',
     lastname: 'Valjean',
     locale: Locale::FR,
+    organization: OrganizationCategory::B2B,   // a business: a KYB file is opened too — CUSTOMER by default
 );
 
 echo $customer->uuid, PHP_EOL;
@@ -100,7 +102,7 @@ Returns a page of `Customer`:
 | `login` | The email |
 | `account` | `CustomerAccount`: `email`, `firstname`, `lastname`, `fin` (tax identification number), `birthdate` (date of birth, epoch seconds, or `null`), `phoneZone` and `phoneNumber` (dialing code, `+33` by default, and the number as an integer), `address` (`AccountAddress`: `uuid`, `address`, `state` — the state of the address record — or `null`), `referralCode` (the customer's own referral code, generated at creation) |
 | `client` | `CustomerClient`: `roles` (platform roles of the account — always `ROLE_USER` for a customer), `hasTfa` (two-factor authentication enabled), `hasPhishing` (anti-phishing code enabled), `isValid` (`true` once the account has been activated) |
-| `action->setup` | `CustomerSetup`: `theme` (theme of the BITGEN web application, `light` by default), `currency` (display currency, `EUR`), `locale` (language of the web application and of the emails: `Locale::FR` or `Locale::EN`), `choosenOrganization` (category chosen at signup: `CUSTOMER`, `B2B`), `needActivation` (activation email pending), `notify` (whether the customer accepts BITGEN emails), `onboarding` (whether the web onboarding has been completed) |
+| `action->setup` | `CustomerSetup`: `theme` (theme of the BITGEN web application, `light` by default), `currency` (display currency, `EUR`), `locale` (language of the web application and of the emails: `Locale::FR` or `Locale::EN`), `choosenOrganization` (category chosen at signup: `OrganizationCategory::CUSTOMER`, `B2B` — a string, compare it with the constants), `needActivation` (activation email pending), `notify` (whether the customer accepts BITGEN emails), `onboarding` (whether the web onboarding has been completed) |
 | `identity` | The KYC or KYB file of the customer ([Identity](#identity)) |
 | `business` | The businesses of the customer, each with its KYB file: a list of `CustomerBusiness` (`identity`) |
 | `collaborations->collaborator` | The customer's attachment to your organization, a list of `CollaboratorLink`: `uuid`, `state` (`WAIT` until activation, then `ENABLED`; `REVOKED` once removed), `roles` (`ROLE_USER` for a customer), `organization` (its name), `organizationUuid`, `manager` (uuid of the collaborator in charge of them) |

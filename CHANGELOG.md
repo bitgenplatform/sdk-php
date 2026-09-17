@@ -1,3 +1,8 @@
+## [1.0.1] - 2026-09-17
+
+### Added
+- `OrganizationCategory` (`CUSTOMER`, `B2B`), `ApikeyState` (`ENABLED`, `REVOKED`) and `SubscriberState` (`ENABLED`, `ARCHIVED`) constants under `Bitgen\Sdk\Model` — the `$organization` of `CustomerResource::create()` is validated against `OrganizationCategory::VALUES` like every other enumerated argument
+
 ## [1.0.0] - 2026-09-17
 
 ### Breaking

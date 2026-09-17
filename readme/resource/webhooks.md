@@ -20,7 +20,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 | `catalogItem($webhook)` | Reads one event of the catalogue | `WebhookType` |
 | `verify($rawBody, $headers, $secret, ...)` | Verifies a delivery received by your endpoint and returns its envelope | `WebhookEvent` |
 
-Models of this resource, under `Bitgen\Sdk\Model`: `WebhookSubscriptions`, `Subscriber`, `WebhookType`, `DeliveryLog`, `WebhookEvent`, `Created` — and the constant class `WebhookEventName`.
+Models of this resource, under `Bitgen\Sdk\Model`: `WebhookSubscriptions`, `Subscriber`, `WebhookType`, `DeliveryLog`, `WebhookEvent`, `Created` — and the constant classes `WebhookEventName`, `SubscriberState`.
 
 ## activate
 
@@ -84,7 +84,7 @@ $client->webhooks->list(?bool $includeArchived = null): WebhookSubscriptions
 
 | Argument | Type | Description |
 |---|---|---|
-| `includeArchived` | `?bool` | Also returns the `ARCHIVED` subscriptions — default `false` ([Query booleans](../concepts.md#query-booleans)) |
+| `includeArchived` | `?bool` | Also returns the `SubscriberState::ARCHIVED` subscriptions — default `false` ([Query booleans](../concepts.md#query-booleans)) |
 
 ```php
 <?php
@@ -102,7 +102,7 @@ Returns a `WebhookSubscriptions`:
 |---|---|
 | `secret` | The secret of your organization, for `verify` |
 | `endpoint` | The URL the events are delivered to |
-| `items` | The subscriptions, a list of `Subscriber`: `uuid`, `state` (`ENABLED` or `ARCHIVED`), `updatedAt` (epoch seconds), `webhook` (the event of the catalogue, a `WebhookType`: `uuid`, `state`, `name`, `label` — its display names, a raw JSON string `{"fr": "…", "en": "…"}` — and `data`, internal) |
+| `items` | The subscriptions, a list of `Subscriber`: `uuid`, `state` (`SubscriberState::ENABLED` or `SubscriberState::ARCHIVED`), `updatedAt` (epoch seconds), `webhook` (the event of the catalogue, a `WebhookType`: `uuid`, `state` (`SubscriberState` as well), `name`, `label` — its display names, a raw JSON string `{"fr": "…", "en": "…"}` — and `data`, internal) |
 
 Before activation, the API answers `404 unknown_webhook_security`.
 
@@ -154,7 +154,7 @@ $client->webhooks->archive(string|Subscriber $subscriber): void
 $client->webhooks->archive('SUBSCRIBER_UUID');
 ```
 
-The subscription becomes `ARCHIVED`: the event is no longer delivered. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
+The subscription becomes `SubscriberState::ARCHIVED`: the event is no longer delivered. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
 
 ## reactivate
 
@@ -170,7 +170,7 @@ $client->webhooks->reactivate(string|Subscriber $subscriber): void
 $client->webhooks->reactivate('SUBSCRIBER_UUID');
 ```
 
-The subscription becomes `ENABLED` again. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
+The subscription becomes `SubscriberState::ENABLED` again. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
 
 ## logs
 
@@ -212,7 +212,7 @@ foreach ($catalog->items as $type) {
 }
 ```
 
-Returns every event of the catalogue, `ARCHIVED` ones included, as `WebhookType`: `uuid`, `state` (`ENABLED` or `ARCHIVED`), `name`, `label` (its display names, a raw JSON string `{"fr": "…", "en": "…"}`), `data` (internal, a raw JSON string).
+Returns every event of the catalogue, `SubscriberState::ARCHIVED` ones included, as `WebhookType`: `uuid`, `state` (`SubscriberState::ENABLED` or `SubscriberState::ARCHIVED`), `name`, `label` (its display names, a raw JSON string `{"fr": "…", "en": "…"}`), `data` (internal, a raw JSON string).
 
 ## catalogItem
 

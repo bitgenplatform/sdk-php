@@ -9,7 +9,7 @@ final readonly class Subscriber
 {
     public function __construct(
         public string $uuid,
-        /** `ENABLED` or `ARCHIVED` */
+        /** `SubscriberState` lists the known values: `ENABLED`, `ARCHIVED` */
         public string $state,
         public int $updatedAt,
         /** The event of the catalogue */

@@ -1,4 +1,4 @@
-# bitgen/sdk — v1.0.0
+# bitgen/sdk — v1.0.1
 
 Official PHP SDK for the BITGEN API v4 — server-side, PHP 8.2+, no dependency beyond `ext-curl` and `ext-json`.
 Install it with `composer require bitgen/sdk`.

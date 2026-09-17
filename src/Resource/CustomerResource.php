@@ -12,6 +12,7 @@ use Bitgen\Sdk\Model\Created;
 use Bitgen\Sdk\Model\Customer;
 use Bitgen\Sdk\Model\Locale;
 use Bitgen\Sdk\Model\OrderUser;
+use Bitgen\Sdk\Model\OrganizationCategory;
 use Bitgen\Sdk\Model\UserSummary;
 use Bitgen\Sdk\Page;
 use Bitgen\Sdk\Support\Enum;
@@ -26,9 +27,6 @@ use InvalidArgumentException;
  */
 class CustomerResource
 {
-    /** The categories a key may give a customer — `BUSINESS` is reserved to platform administrators */
-    private const CATEGORIES = ['CUSTOMER', 'B2B'];
-
     public function __construct(private readonly HttpClient $http)
     {
     }
@@ -44,9 +42,9 @@ class CustomerResource
      * @param bool|null          $needActivation default true: activation email, account `CREATED` until activated — false: usable right away, no email
      * @param bool|null          $notify         default true: the customer receives BITGEN's emails (newsletter) — false: none
      * @param string|null        $locale         `FR` (default) or `EN` — a `Locale` constant
-     * @param string|null        $organization   category: `CUSTOMER` (default) or `B2B` (also opens a KYB file)
+     * @param string|null        $organization   category: `CUSTOMER` (default) or `B2B` (also opens a KYB file) — an `OrganizationCategory` constant; `BUSINESS` is reserved to platform administrators
      *
-     * @throws InvalidArgumentException `$organization` is not `CUSTOMER` or `B2B`, or `$locale` is not `FR` or `EN`
+     * @throws InvalidArgumentException `$organization` is not an `OrganizationCategory` (`BUSINESS` included), or `$locale` is not `FR` or `EN`
      * @throws BitgenException          the API answered an error, or no HTTP answer was received
      */
     public function create(
@@ -60,9 +58,6 @@ class CustomerResource
         ?string $locale = null,
         ?string $organization = null,
     ): Created {
-        if ($organization !== null && !in_array($organization, self::CATEGORIES, true)) {
-            throw new InvalidArgumentException('organization must be CUSTOMER or B2B (BUSINESS is reserved to platform administrators)');
-        }
         $body = [
             'account' => self::compact([
                 'email' => $email,
@@ -75,7 +70,8 @@ class CustomerResource
             // Only the manager comes from the caller: the organization is always the scope, and no role is ever sent (the API takes ROLE_USER)
             'group' => ['manager' => $manager, 'organization' => $this->http->scope],
             'locale' => self::locale($locale),
-            'organization' => $organization,
+            // `BUSINESS` is reserved to platform administrators: refused here, like any string outside the list
+            'organization' => $organization === null ? null : Enum::ensure($organization, OrganizationCategory::VALUES, 'organization'),
         ];
 
         return Created::fromArray(Cast::answer($this->http->post('/customer', self::compact($body))));

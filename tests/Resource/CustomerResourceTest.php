@@ -16,6 +16,7 @@ use Bitgen\Sdk\Model\IdentityState;
 use Bitgen\Sdk\Model\KybIdentity;
 use Bitgen\Sdk\Model\KycIdentity;
 use Bitgen\Sdk\Model\Locale;
+use Bitgen\Sdk\Model\OrganizationCategory;
 use Bitgen\Sdk\Resource\CustomerResource;
 use Bitgen\Sdk\Tests\Http\FakeTransport;
 use Bitgen\Sdk\Tests\TypeErrors;
@@ -95,7 +96,7 @@ final class CustomerResourceTest extends TestCase
         // (the exact body above proves it: no `role`, the organization is the scope)
 
         // every option, needActivation / notify travel as given (false is sent, not dropped)
-        $this->customer->create(email: 'a@b.c', manager: 'm', lastname: 'V', fin: 'FIN', needActivation: false, notify: false, locale: Locale::EN, organization: 'B2B');
+        $this->customer->create(email: 'a@b.c', manager: 'm', lastname: 'V', fin: 'FIN', needActivation: false, notify: false, locale: Locale::EN, organization: OrganizationCategory::B2B);
         self::assertSame([
             'account' => ['email' => 'a@b.c', 'lastname' => 'V', 'fin' => 'FIN', 'needActivation' => false, 'notify' => false],
             'group' => ['manager' => 'm', 'organization' => 'org-uuid'],
@@ -118,10 +119,15 @@ final class CustomerResourceTest extends TestCase
         } catch (InvalidArgumentException) {
         }
         try {
-            $this->customer->create(email: 'a@b.c', manager: 'm', organization: 'BUSINESS');
+            $this->customer->create(email: 'a@b.c', manager: 'm', organization: 'BUSINESS');   // reserved to platform administrators: outside OrganizationCategory::VALUES
             self::fail('expected an InvalidArgumentException');
         } catch (InvalidArgumentException $e) {
-            self::assertStringContainsString('BUSINESS is reserved to platform administrators', $e->getMessage());
+            self::assertSame('organization must be CUSTOMER or B2B', $e->getMessage());   // the list, never the value received
+        }
+        try {
+            $this->customer->create(email: 'a@b.c', manager: 'm', organization: 'b2b');
+            self::fail('expected an InvalidArgumentException');
+        } catch (InvalidArgumentException) {
         }
         self::assertSame([], $this->transport->requests);
     }
@@ -155,7 +161,7 @@ final class CustomerResourceTest extends TestCase
         self::assertTrue($customer->client->isValid);
         self::assertSame('light', $customer->action->setup->theme);
         self::assertSame('EUR', $customer->action->setup->currency);
-        self::assertSame('CUSTOMER', $customer->action->setup->choosenOrganization);
+        self::assertSame(OrganizationCategory::CUSTOMER, $customer->action->setup->choosenOrganization);
         self::assertFalse($customer->action->setup->needActivation);
         self::assertTrue($customer->action->setup->onboarding);
         // KYC identity, narrowed by class

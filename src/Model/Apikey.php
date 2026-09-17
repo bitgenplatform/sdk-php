@@ -12,7 +12,7 @@ final readonly class Apikey
      */
     public function __construct(
         public string $uuid,
-        /** `ENABLED` or `REVOKED` */
+        /** `ApikeyState` lists the known values: `ENABLED`, `REVOKED` */
         public string $state,
         /** Label given at creation */
         public string $name,

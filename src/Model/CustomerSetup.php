@@ -14,7 +14,7 @@ final readonly class CustomerSetup
         public string $currency,
         /** Language of the web application and of the emails (`Locale`) */
         public string $locale,
-        /** Category chosen at signup: `CUSTOMER`, `B2B` */
+        /** Category chosen at signup — `OrganizationCategory` lists the known values: `CUSTOMER`, `B2B` */
         public string $choosenOrganization,
         /** Activation email pending: the customer is invisible to bank / custody / trading / staking until they activate */
         public bool $needActivation,

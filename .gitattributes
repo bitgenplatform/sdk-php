@@ -1,0 +1,9 @@
+# Keep the Packagist archive (`composer require`) to what an integrator needs: src/, readme/, README.md, CHANGELOG.md, composer.json
+/tests             export-ignore
+/.github           export-ignore
+/phpunit.xml.dist  export-ignore
+/phpstan.neon.dist export-ignore
+/CONTRIBUTING.md   export-ignore
+/composer.lock     export-ignore
+/.gitignore        export-ignore
+/.gitattributes    export-ignore

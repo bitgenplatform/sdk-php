@@ -5,46 +5,40 @@ declare(strict_types=1);
 namespace Bitgen\Sdk\Exception;
 
 use RuntimeException;
+use Throwable;
 
 /**
- * Note: the property is named $errorCode (not $code) to avoid a conflict
- * with the non-readonly $code property inherited from PHP's base Exception class.
+ * Error answered by the API — or no HTTP answer at all.
+ *
+ * `$status` is the HTTP status (`0` when no HTTP response was received: `request_timeout`, `network_error`),
+ * `$errorCode` the stable code of the API (`invalid_amount`, `unknown_asset`…) — or the raw response text,
+ * truncated to 200 characters, when the body is not the API's JSON error.
+ * `getMessage()` is `"<errorCode> (HTTP <status>)"`, `getCode()` is the status.
+ * Nothing in it ever contains the API key.
  */
 class BitgenException extends RuntimeException
 {
-    public readonly int    $status;
-    public readonly int    $errorCode;
-    public readonly string $service;
-    public readonly string $module;
-    public readonly string $apiMessage;
+    /** Longest `errorCode` kept: the API sends short snake_case codes, anything longer is a foreign body (proxy page…) */
+    public const MAX_CODE_LENGTH = 200;
+
+    public readonly string $errorCode;
 
     public function __construct(
-        int    $status,
-        int    $errorCode,
-        string $service,
-        string $module,
-        string $apiMessage,
+        public readonly int $status,
+        string $errorCode,
+        ?Throwable $previous = null,
     ) {
-        $this->status     = $status;
-        $this->errorCode  = $errorCode;
-        $this->service    = $service;
-        $this->module     = $module;
-        $this->apiMessage = $apiMessage;
-
-        parent::__construct(
-            sprintf('[%s/%s] %s (HTTP %d, code %d)', $module, $service, $apiMessage, $status, $errorCode),
-            $errorCode,
-        );
+        $this->errorCode = self::truncate($errorCode);
+        parent::__construct(sprintf('%s (HTTP %d)', $this->errorCode, $status), $status, $previous);
     }
 
-    public static function fromArray(int $httpStatus, array $error): self
+    /** First 200 characters (UTF-8 aware, falls back to bytes on invalid UTF-8) */
+    private static function truncate(string $text): string
     {
-        return new self(
-            status:     $httpStatus,
-            errorCode:  (int)    ($error['code']    ?? 0),
-            service:    (string) ($error['service'] ?? ''),
-            module:     (string) ($error['module']  ?? ''),
-            apiMessage: (string) ($error['message'] ?? ''),
-        );
+        if (preg_match('/^.{0,' . self::MAX_CODE_LENGTH . '}/us', $text, $match) === 1) {
+            return $match[0];
+        }
+
+        return substr($text, 0, self::MAX_CODE_LENGTH);
     }
 }

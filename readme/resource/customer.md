@@ -4,6 +4,8 @@ A customer is an end user of your organization on the BITGEN platform: a person 
 
 Examples use `$client`, a configured `BitgenClient` ([Configuration](../configuration.md)), and `$customer`, the `Created` returned by `create()`. A customer is designated by a `UserRef`: their uuid, or a model carrying it — `Created`, `Customer`, `Account`… ([User references](../concepts.md#user-references)).
 
+![Activation and identity: from the creation of a customer to the financial resources](../media/activation.svg)
+
 ## Methods
 
 | Method | What it does | Returns |
@@ -15,7 +17,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `Created`, `Customer`, `CustomerAccount`, `AccountAddress`, `CustomerClient`, `CustomerAction`, `CustomerSetup`, `CustomerCollaborations`, `CollaboratorLink`, `ManagerLink`, `CustomerAlert`, `CustomerBusiness`, `Account`, `AccountNotifications`, `Identity` (`KycIdentity`, `KybIdentity`), `KycIdentityForm`, `KybIdentityForm`, `IdentityData`, `IdentityStep` — and the constant classes `CustomerState`, `IdentityState`, `IdentityMode`, `Locale`, `OrganizationCategory`.
 
-## create
+## Create
 
 ```
 $client->customer->create(string $email, string $manager, ?string $firstname = null, ?string $lastname = null, ?string $fin = null, ?bool $needActivation = null, ?bool $notify = null, ?string $locale = null, ?string $organization = null): Created
@@ -69,7 +71,7 @@ When the email already belongs to an active account whose KYC is validated, that
 
 Returns a `Created`: the `uuid` of the customer — pass it as is to the other resources.
 
-## list
+## List
 
 ```
 $client->customer->list(?int $offset = null, ?int $limit = null, ?bool $includeClosed = null, ?string $manager = null): Page<Customer>
@@ -109,7 +111,7 @@ Returns a page of `Customer`:
 | `collaborations->manager` | Attachments where this account manages other people — always empty for a customer (a list of `ManagerLink`: `mandate`, `mandatedUntil`: CRM data, not needed for an integration) |
 | `alert` | Active compliance alerts, a list of `CustomerAlert`: `uuid`, `state` (`OPEN`, `DECLARATED`, `CONFIRMED`), `severity` (`SUCCESS`, `WARNING`, `CRITICAL`), `sources` (the observations behind the alert — analysis data) |
 
-## get
+## Get
 
 ```
 $client->customer->get(UserRef $user): Account
@@ -173,7 +175,7 @@ if ($identity instanceof KycIdentity) {
 }
 ```
 
-## update
+## Update
 
 ```
 $client->customer->update(UserRef $user, ?string $theme = null, ?string $locale = null, ?array $notifications = null): void

@@ -15,7 +15,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `Order`, `OrderCreated`, `OrderUser`, `OrderOrganization`, `AssetRef` — and the constant classes `OrderState`, `OrderSide`, `TradingDirection`.
 
-## buy
+## Buy
 
 ```
 $client->trading->buy(UserRef $user, string|Model\Asset|AssetRef $asset, string|int|float $amount, ?string $reference = null): OrderCreated
@@ -40,7 +40,9 @@ echo $order->state, ' ', $order->received, ' ', $order->executedPrice, PHP_EOL; 
 
 The API reserves `amount` on the customer's EUR account (`423 insufficient_funds` if the balance is insufficient, `404 unknown_bank` without an EUR account) and creates the order. Returns an `OrderCreated`: `tunnel`, the uuid of the order, and `state`, its initial state.
 
-## sell
+![A purchase: REGISTERED, EXECUTING, FILLED, DELIVERING, DONE — FAILED and PARKED](../media/order-buy.svg)
+
+## Sell
 
 ```
 $client->trading->sell(UserRef $user, string|Model\Asset|AssetRef $asset, string|int|float $amount, ?string $reference = null): OrderCreated
@@ -65,7 +67,9 @@ echo $order->received, PHP_EOL;   // EUR credited to the bank account once the o
 
 The sale takes the crypto from the customer's custody wallet through an internal transfer to the exchange: the errors of a custody withdrawal can surface ([Custody wallets › Errors](custody.md#errors)), in particular `416 requested_amount_error` for an insufficient crypto balance and `503 custody_vault_unavailable`.
 
-## get
+![A sale: REGISTERED, TRANSFERRING, DEPOSITED, EXECUTING, FILLED, DONE — FAILED and PARKED](../media/order-sell.svg)
+
+## Get
 
 ```
 $client->trading->get(string|Order $order): Order
@@ -86,7 +90,7 @@ Returns an `Order`:
 | Property | Description |
 |---|---|
 | `uuid` | The order — the `tunnel` of `buy` / `sell` |
-| `state` | A purchase goes `OrderState::REGISTERED` → `EXECUTING` → `FILLED` → `DELIVERING` → `DONE`; a sale `REGISTERED` → `TRANSFERRING` → `DEPOSITED` → `EXECUTING` → `FILLED` → `DONE`. `PARKED`: executed but nothing was received (terminal); `FAILED` — a string; the `OrderState` constants name the known values |
+| `state` | A purchase goes `OrderState::REGISTERED` → `EXECUTING` → `FILLED` → `DELIVERING` → `DONE`; a sale `REGISTERED` → `TRANSFERRING` → `DEPOSITED` → `EXECUTING` → `FILLED` → `DONE`. `FAILED` and `PARKED` are terminal, reached before anything of the target asset was received: `FAILED` from `REGISTERED` or `EXECUTING` for a purchase (the EUR reserve is released), from `REGISTERED`, `TRANSFERRING` or `EXECUTING` for a sale (the crypto goes back to the wallet); `PARKED` from `EXECUTING` only — executed, but nothing of the target asset was received; the BITGEN team takes over — a string; the `OrderState` constants name the known values |
 | `side` | `OrderSide::BUY` or `OrderSide::SELL` — a string |
 | `amount` | What was asked, as a string: EUR for a purchase (`"25.00"`), a crypto quantity for a sale |
 | `reference` | The idempotency key given, or `null` |
@@ -100,7 +104,7 @@ Returns an `Order`:
 
 An order outside your organization answers `404 unknown_order`.
 
-## list
+## List
 
 ```
 $client->trading->list(?UserRef $user = null, ?string $direction = null, string|Model\Asset|AssetRef|null $asset = null, ?int $offset = null, ?int $limit = null): Page<Order>
@@ -162,3 +166,4 @@ In addition to the [common errors](../errors.md#common-errors), and the custody 
 - [Custody wallets](custody.md) — the wallets sales take crypto from
 - [Assets catalogue](asset.md) — which assets are `AVAILABLE`, their decimals
 - [Webhooks](webhooks.md) — `trading.buy`, `trading.sell`
+- [Following a purchase and a sale](../concepts.md#following-a-purchase-and-a-sale) — where the EUR, the execution, the delivery and the credit show up, resource by resource

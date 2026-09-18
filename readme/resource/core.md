@@ -15,7 +15,7 @@ Models of this resource, under `Bitgen\Sdk\Model`: `Core`, `CoreConfigField`, `C
 
 The catalogue is managed by BITGEN. Which connectors your organization uses, and their configuration, are set in the BITGEN interface — not through the API.
 
-## list
+## List
 
 ```
 $client->core->list(?string $type = null, string|Model\Asset|AssetRef|null $asset = null, ?string $state = null): Page<Core>
@@ -47,7 +47,7 @@ foreach ($providers->items as $provider) {
 
 Returns the matching `Core` connectors ([get](#get)).
 
-## get
+## Get
 
 ```
 $client->core->get(string|Core $core): Core

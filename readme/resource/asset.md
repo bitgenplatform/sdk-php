@@ -15,7 +15,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `Asset`, `AssetTicker`, `AssetFees`, `AssetFeesComputed`, `AssetNetwork`, `AssetNetworkType`, `AssetTickerItem`, `AssetTickerDetail` — the constant class `AssetState`, and the shared `History`.
 
-## list
+## List
 
 ```
 $client->asset->list(): Page<Asset>
@@ -37,7 +37,7 @@ foreach ($page->items as $asset) {
 
 Returns a page of `Asset` ([get](#get)).
 
-## get
+## Get
 
 ```
 $client->asset->get(string|Model\Asset|AssetRef $asset): Asset
@@ -75,7 +75,7 @@ Returns an `Asset`:
 
 An unknown uuid or ISO code answers `404 unknown_asset`.
 
-## tickers
+## Tickers
 
 ```
 $client->asset->tickers(): Page<AssetTickerItem>
@@ -93,7 +93,7 @@ foreach ($page->items as $item) {
 
 Returns, for every asset, an `AssetTickerItem`: its `iso` and its `ticker` (`AssetTicker`): `price` and `marketcap` (in EUR), `rank` (market cap rank), `percentChange24h` (24-hour change, in %).
 
-## ticker
+## Ticker
 
 ```
 $client->asset->ticker(string $iso): AssetTickerDetail

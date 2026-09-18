@@ -9,5 +9,5 @@ namespace Bitgen\Sdk;
  */
 final class Version
 {
-    public const VERSION = '1.0.1';
+    public const VERSION = '1.0.2';
 }

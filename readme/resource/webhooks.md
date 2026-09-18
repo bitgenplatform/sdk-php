@@ -4,6 +4,8 @@ BITGEN pushes the events of your organization — a customer created, an identit
 
 Examples use `$client`, a configured `BitgenClient` ([Configuration](../configuration.md)). Wherever the API expects your organization, the SDK sends the `scope` of the client.
 
+![Receiving a delivery: the POST, its verification, the 2xx answer and the retries](../media/webhook-delivery.svg)
+
 ## Methods
 
 | Method | What it does | Returns |
@@ -22,7 +24,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `WebhookSubscriptions`, `Subscriber`, `WebhookType`, `DeliveryLog`, `WebhookEvent`, `Created` — and the constant classes `WebhookEventName`, `SubscriberState`.
 
-## activate
+## Activate
 
 ```
 $client->webhooks->activate(string $endpoint): void
@@ -42,7 +44,7 @@ $secret = $client->webhooks->list()->secret;   // the initial secret is read wit
 
 Activation generates the secret of your organization. `activate` does not return it: the API returns the current secret in `list()` (`secret` property, next to `endpoint` and the subscriptions). Once active, a second activation answers `429 webhook_security_already_enabled`. The API answers with an empty body: the method returns nothing.
 
-## updateEndpoint
+## UpdateEndpoint
 
 ```
 $client->webhooks->updateEndpoint(string $endpoint): void
@@ -60,7 +62,7 @@ $client->webhooks->updateEndpoint('https://example.com/bitgen/v2');
 
 Before activation, the API answers `404 unknown_webhook_security`. The method returns nothing.
 
-## regenerate
+## Regenerate
 
 ```
 $client->webhooks->regenerate(): void
@@ -76,7 +78,7 @@ $secret = $client->webhooks->list()->secret;   // 2. the new secret — configur
 
 `regenerate()` creates a new secret but does not return it: the API returns the current secret in `list()` (`secret` property, next to `endpoint` and the subscriptions). The deliveries are signed with the new one from then on, the previous one stops validating immediately. Before activation, the API answers `404 unknown_webhook_security`. The method returns nothing.
 
-## list
+## List
 
 ```
 $client->webhooks->list(?bool $includeArchived = null): WebhookSubscriptions
@@ -106,7 +108,7 @@ Returns a `WebhookSubscriptions`:
 
 Before activation, the API answers `404 unknown_webhook_security`.
 
-## subscribe
+## Subscribe
 
 ```
 $client->webhooks->subscribe(string|WebhookType $event): Created
@@ -140,7 +142,7 @@ Returns a `Created`: the `uuid` of the subscription, for `archive`, `reactivate`
 
 Each has its `WebhookEventName` constant (`WebhookEventName::CUSTODY_SENT` for `custody.sent`, `WebhookEventName::USER_IDENTITY_STEP_VALIDATED` for `user.identity.step.validated`…); `subscribe` also accepts any other name, as the catalogue may grow, and a `WebhookType` of the catalogue (its uuid is sent).
 
-## archive
+## Archive
 
 ```
 $client->webhooks->archive(string|Subscriber $subscriber): void
@@ -156,7 +158,7 @@ $client->webhooks->archive('SUBSCRIBER_UUID');
 
 The subscription becomes `SubscriberState::ARCHIVED`: the event is no longer delivered. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
 
-## reactivate
+## Reactivate
 
 ```
 $client->webhooks->reactivate(string|Subscriber $subscriber): void
@@ -172,7 +174,7 @@ $client->webhooks->reactivate('SUBSCRIBER_UUID');
 
 The subscription becomes `SubscriberState::ENABLED` again. An unknown subscription answers `404 unknown_webhook_subscriber`. The method returns nothing.
 
-## logs
+## Logs
 
 ```
 $client->webhooks->logs(string|Subscriber $subscriber, ?int $offset = null, ?int $limit = null): Page<DeliveryLog>
@@ -196,7 +198,7 @@ foreach ($page->items as $delivery) {
 
 Returns a page of `DeliveryLog` (property names as the API gives them): `date` (epoch seconds), `webhook` (the event name), `url` (the endpoint called), `status` (`SENT` or `FAILED` for that attempt), `http_code` (the status your endpoint answered, or `null`), `duration_ms` (or `null`), `attempts` (attempt number), `payload` (the delivered body, an associative array), `error` (failure reason, `null` on success).
 
-## catalog
+## Catalog
 
 ```
 $client->webhooks->catalog(): Page<WebhookType>
@@ -214,7 +216,7 @@ foreach ($catalog->items as $type) {
 
 Returns every event of the catalogue, `SubscriberState::ARCHIVED` ones included, as `WebhookType`: `uuid`, `state` (`SubscriberState::ENABLED` or `SubscriberState::ARCHIVED`), `name`, `label` (its display names, a raw JSON string `{"fr": "…", "en": "…"}`), `data` (internal, a raw JSON string).
 
-## catalogItem
+## CatalogItem
 
 ```
 $client->webhooks->catalogItem(string|WebhookType $webhook): WebhookType
@@ -232,7 +234,7 @@ echo $type->name, PHP_EOL;   // custody.sent
 
 Returns one `WebhookType`; an unknown uuid answers `404 unknown_webhook`.
 
-## verify
+## Verify
 
 ```
 $client->webhooks->verify(string $rawBody, array $headers, string $secret, int|float $tolerance = 300): WebhookEvent

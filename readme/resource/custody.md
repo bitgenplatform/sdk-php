@@ -15,7 +15,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `Wallet`, `AssetRef`, `CustodyPortfolio`, `CustodyWithdrawal`, `TravelRule` (`TravelRulePerson`, `TravelRulePlatform`) — the constant classes `WalletState`, `WalletType`, and the shared `History`.
 
-## wallets
+## Wallets
 
 ```
 $client->custody->wallets(UserRef $user): Wallet[]
@@ -47,7 +47,7 @@ Returns a plain PHP array of `Wallet` (a `list<Wallet>`, not a `Page`: the API a
 | `asset` | `AssetRef`: `uuid`, `iso`, `label` ([Assets](../concepts.md#assets) — compare `iso` case-insensitively) |
 | `history` | Only on `wallet`: the EUR value curve, a `History` ([Timestamps and histories](../concepts.md#timestamps-and-histories)) — `null` here, and on a new wallet until the curve has been computed |
 
-## wallet
+## Wallet
 
 ```
 $client->custody->wallet(UserRef $user, string|Model\Asset|AssetRef $asset): Wallet
@@ -73,7 +73,7 @@ echo count($wallet->history?->d ?? []), PHP_EOL;   // 24 — EUR value over the 
 
 When the customer has no wallet for this asset yet, the API **provisions** it: a deposit address is created at the custodian. The customer must be activated, not frozen (`403 account_frozen`), with a validated identity if your organization uses BITGEN's identity verification (`403 kyc_not_validated` — [Activation and identity](../concepts.md#activation-and-identity)) and no active compliance alert (`423 blocked_by_alert`). Returns the `Wallet` with its `history`.
 
-## portfolio
+## Portfolio
 
 ```
 $client->custody->portfolio(UserRef $user): CustodyPortfolio
@@ -91,7 +91,7 @@ foreach ($portfolio->history->m as [$epoch, $value]) {   // EUR value of the cus
 
 Returns a `CustodyPortfolio`: `uuid`, the custody account of the customer, `type`, `WalletType::USER` (a customer) or `WalletType::TREASURY` (the organization), and `history`, the EUR value curve — `uuid` and `type` are `null`, and the curve is at zero, while the customer has no custody yet. Customers only: your organization's uuid is refused with `415 custody_portfolio_treasury_unsupported`.
 
-## withdraw
+## Withdraw
 
 ```
 $client->custody->withdraw(UserRef $user, string|Model\Asset|AssetRef $asset, string|int|float $amount, string $targetAddress, ?string $targetTag = null, ?string $idempotencyKey = null, ?TravelRule $travelRule = null): CustodyWithdrawal

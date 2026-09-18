@@ -1,4 +1,4 @@
-# bitgen/sdk — v1.0.1
+# bitgen/sdk — v1.0.2
 
 Official PHP SDK for the BITGEN API v4 — server-side, PHP 8.2+, no dependency beyond `ext-curl` and `ext-json`.
 Install it with `composer require bitgen/sdk`.
@@ -19,7 +19,7 @@ $client = new BitgenClient(
 - [Installation](readme/installation.md) — PHP 8.2+, Composer, the classes to import
 - [Quick start](readme/quick-start.md) — a customer, their EUR account, a wallet, a purchase
 - [Configuration](readme/configuration.md) — credentials, environments, custom host, timeout
-- [Concepts](readme/concepts.md) — user references, amounts, pagination, assets, activation
+- [Concepts](readme/concepts.md) — user references, amounts, pagination, assets, activation, the flows of a purchase, a sale, a deposit and a withdrawal
 - [Errors](readme/errors.md) — `BitgenException`, error codes, invalid arguments
 
 Resources, in the order of an integration:

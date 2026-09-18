@@ -1,10 +1,12 @@
 # Staking
 
-Staking places the crypto of a customer with a staking provider to earn rewards. A **provider** is a `STAKING` connector of the platform, one per asset (`figment_sol`, `bitgen_eth`…), with its own rate, minimum deposit and lock-up periods. Staking is driven by **movements** — a request to stake, unstake, withdraw or claim rewards — each attached to a **position**, the capital placed with the provider. `$client->staking` lists the providers, opens a position, follows the movements, claims rewards, unstakes, and reads the operations and the EUR portfolio of a customer.
+Staking places the crypto of a customer with a staking provider to earn rewards. A **provider** is a `STAKING` connector of the platform, one per asset (`figment_sol`, `bitgen_eth`…), with its own rate, minimum deposit and lock-up periods. Staking is driven by a **movement** — the request to stake, rewritten into the exit when the position is left entirely — attached to a **position**, the capital placed with the provider. `$client->staking` lists the providers, opens a position, follows the movements, claims rewards, unstakes, and reads the operations and the EUR portfolio of a customer.
 
 Two distinct identifiers: `stake` returns the uuid of a **movement**, which `get`, `list` and `movements` handle; the **position** it opened is `$movement->staking` (its `uuid`), which `rewards` and `unstake` take — each by uuid or by model.
 
 Examples use `$client`, a configured `BitgenClient` ([Configuration](../configuration.md)), and `$customer`, the `Created` returned by `$client->customer->create()`. A customer is designated by a `UserRef`: their uuid, or a model carrying it ([User references](../concepts.md#user-references)). A customer who is not an activated member of your organization is refused with `403 org_forbidden` ([Activation and identity](../concepts.md#activation-and-identity)).
+
+![Staking: the movement returned by Stake, its states, and the position it opens](../media/staking-position.svg)
 
 ## Methods
 
@@ -22,7 +24,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `StakingMovement`, `StakingPosition`, `StakingPositionData`, `CoreRef`, `StakingOperation`, `StakingPortfolio`, `StakingBalances`, `StakingHistories`, `Created` — the constant classes `StakingMovementState`, `StakingMovementKind`, `StakingPositionState` — and the shared `Core`, `UserSummary`, `AssetRef`, `OrganizationSummary`, `History`.
 
-## providers
+## Providers
 
 ```
 $client->staking->providers(string|Model\Asset|AssetRef|null $asset = null): Page<Core>
@@ -61,7 +63,7 @@ Returns the `STAKING` connectors, not paginated. The `uuid` or the `name` of a p
 
 Periods are written `<unit>@<n>` with the unit `H`, `D`, `W`, `M` or `Y` — `D@3` is 3 days.
 
-## stake
+## Stake
 
 ```
 $client->staking->stake(UserRef $user, string|Model\Asset|AssetRef $asset, string|int|float $amount, string $provider): Created
@@ -89,7 +91,7 @@ echo $movement->staking->uuid, PHP_EOL;   // the position, for rewards() and uns
 
 The amount is moved from the customer's custody wallet to the deposit address of the provider through an internal transfer: the errors of a custody withdrawal can surface ([Custody wallets › Errors](custody.md#errors)), in particular `416 requested_amount_error` for an insufficient crypto balance. Returns a `Created`: the `uuid` of the **movement**.
 
-## list
+## List
 
 ```
 $client->staking->list(?UserRef $user = null, ?string $direction = null, ?int $offset = null, ?int $limit = null): Page<StakingMovement>
@@ -100,7 +102,7 @@ The movements of your organization, in every state.
 | Argument | Type | Description |
 |---|---|---|
 | `user` | `?UserRef` | Only the movements of this customer (uuid or model; unknown → `404 unknown_user`) |
-| `direction` | `?string` | Only this kind of movement: `StakingMovementKind::STAKE`, `UNSTAKE`, `WITHDRAW` or `REWARD` — anything else is refused before any request. Absent, all kinds |
+| `direction` | `?string` | Only this kind of movement: `StakingMovementKind::STAKE`, `UNSTAKE`, `WITHDRAW` or `REWARD` — anything else is refused before any request. Absent, all kinds. A movement is `STAKE`, then `UNSTAKE` after a full exit; `WITHDRAW` and `REWARD` match no movement — a partial exit and a claim create none — and give an empty page |
 | `offset`, `limit` | `?int` | [Pagination](../concepts.md#pagination) |
 
 ```php
@@ -117,7 +119,7 @@ foreach ($page->items as $movement) {
 
 Returns a page of `StakingMovement` ([get](#get)).
 
-## movements
+## Movements
 
 ```
 $client->staking->movements(?UserRef $user = null, ?string $direction = null, ?int $offset = null, ?int $limit = null): Page<StakingMovement>
@@ -135,7 +137,7 @@ echo $pending->count, PHP_EOL;   // 0 once every request has completed
 
 Returns a page of `StakingMovement` ([get](#get)).
 
-## get
+## Get
 
 ```
 $client->staking->get(string|StakingMovement $movement): StakingMovement
@@ -157,8 +159,8 @@ Returns a `StakingMovement`:
 | Property | Description |
 |---|---|
 | `uuid` | The movement |
-| `state` | `StakingMovementState::REQUESTED`, `PENDING`, `COMPLETED`, `FAILED` or `CANCELED` — a string |
-| `kind` | `StakingMovementKind::STAKE`, `UNSTAKE`, `WITHDRAW` or `REWARD` — a string |
+| `state` | `StakingMovementState::REQUESTED`, `PENDING`, `COMPLETED`, `FAILED` or `CANCELED` — a string; the cycle is below the table |
+| `kind` | `StakingMovementKind::STAKE` from the request, `UNSTAKE` once a full exit is requested — the same movement, rewritten; `WITHDRAW` and `REWARD` are values of the `direction` filter and of the operations journal, carried by no movement — a string |
 | `provider` | The `name` of the staking connector (`figment_sol`) |
 | `amount` | The quantity of the movement, as a string |
 | `createdAt`, `updatedAt` | Epoch seconds |
@@ -167,9 +169,11 @@ Returns a `StakingMovement`:
 | `asset` | `AssetRef`: `uuid`, `iso`, `label` |
 | `organization` | `OrganizationSummary`: `uuid`, `state`, `name` (`hub` is always `null` here), or `null` |
 
+A position has a single movement, whose uuid — the one returned by `stake` — never changes. The movement goes `STAKE` `REQUESTED` → `PENDING` (the deposit is on its way; the `amount` of the position becomes the net quantity received) → `COMPLETED` (the position is `ENABLED`); `REQUESTED` → `FAILED` when the transfer fails, `PENDING` → `CANCELED` when the platform cancels the request — the position is `FAILED` in both cases. A full exit (`unstake`) rewrites the same movement `UNSTAKE` `REQUESTED` (the position is `UNSTAKING`), then `COMPLETED` when the platform closes the position (`CLOSED`). A partial exit and a claim leave the movement untouched: the position stays `ENABLED`, its `amount` and `data.rewards` decrease.
+
 An unknown movement, or one outside your organization, answers `404 unknown_staking_movement`.
 
-## rewards
+## Rewards
 
 ```
 $client->staking->rewards(string|StakingPosition $position, string|int|float|null $amount = null): void
@@ -188,9 +192,9 @@ $client->staking->rewards('POSITION_UUID');           // all the rewards
 $client->staking->rewards('POSITION_UUID', '0.01');   // part of them
 ```
 
-The amount is deducted from the position immediately; the transfer is executed by compliance. Without rewards to claim the API answers `425 no_rewards`; a partial amount below the minimum of the provider, `422 amount_below_minimum`. The API answers with an empty body: the method returns nothing.
+The amount is deducted from the position immediately; the transfer is executed by compliance. No movement is created or changed: `data.rewards` of the position decreases, and the event `staking.claimed` reports the claim. Without rewards to claim the API answers `425 no_rewards`; a partial amount below the minimum of the provider, `422 amount_below_minimum`. The API answers with an empty body: the method returns nothing.
 
-## unstake
+## Unstake
 
 ```
 $client->staking->unstake(string|StakingPosition $position, string|int|float|null $amount = null): void
@@ -209,9 +213,9 @@ $client->staking->unstake('POSITION_UUID', '1');   // partial exit
 $client->staking->unstake('POSITION_UUID');        // full exit
 ```
 
-The amount is deducted from the position immediately; the transfer is executed by compliance. A full exit ignores the minimums; a partial amount below the minimum of the provider answers `422 amount_below_minimum`. The position must be past the lock-up period of the provider (`425 deposit_locked_period_not_elapsed`) and its staking movement completed (`412 staking_movement_not_completed`). The API answers with an empty body: the method returns nothing.
+The amount is deducted from the position immediately; the transfer is executed by compliance. A full exit — no `amount`, or the whole position — rewrites the movement of the position: `kind` `UNSTAKE`, `state` `REQUESTED`, and the position is `UNSTAKING`; follow it with `get` and the uuid returned by `stake`; the event `staking.status` reports `UNSTAKING`, then `CLOSED` once the platform closes the position. A partial exit touches no movement: the position stays `ENABLED` with a reduced `amount`, and `staking.status` reports `WITHDRAWAL`. A full exit ignores the minimums; a partial amount below the minimum of the provider answers `422 amount_below_minimum`. The position must be past the lock-up period of the provider (`425 deposit_locked_period_not_elapsed`) and its staking movement completed (`412 staking_movement_not_completed`). The API answers with an empty body: the method returns nothing.
 
-## operations
+## Operations
 
 ```
 $client->staking->operations(UserRef $user, ?int $offset = null, ?int $limit = null): Page<StakingOperation>
@@ -231,9 +235,9 @@ foreach ($page->items as $operation) {
 }
 ```
 
-Returns a page of `StakingOperation`: `txId` (journal entry id), `movement` (uuid of the movement, `null` for a daily reward), `asset` (iso), `kind` (`StakingMovementKind::STAKE`, `UNSTAKE`, `WITHDRAW` or `REWARD`), `amount` (asset units, as a string), `price` (EUR price of the asset at that time), `value` (EUR value), `event` (`created`, `pending`, `validated`, `failed`, `reward`, `claimed`, `unstake`, `closed` — other values may appear), `provider` (connector name), `date` (epoch seconds). An unknown customer, or one outside your organization, answers `404 unknown_staking`.
+Returns a page of `StakingOperation`: `txId` (journal entry id), `movement` (uuid of the movement of the position — `reward` and `claim` entries carry it too — or `null`), `asset` (iso), `kind` (`StakingMovementKind::STAKE`, `UNSTAKE`, `WITHDRAW` or `REWARD` — `REWARD` for the `reward` and `claim` entries), `amount` (asset units, as a string), `price` (EUR price of the asset at that time), `value` (EUR value), `event` (`validated`, `failed`, `canceled`, `reward`, `claim` or `closed` — other values may appear), `provider` (connector name), `date` (epoch seconds). An unknown customer, or one outside your organization, answers `404 unknown_staking`.
 
-## portfolio
+## Portfolio
 
 ```
 $client->staking->portfolio(UserRef $user): StakingPortfolio

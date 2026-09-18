@@ -14,7 +14,7 @@ Examples use `$client`, a configured `BitgenClient` ([Configuration](../configur
 
 Models of this resource, under `Bitgen\Sdk\Model`: `Apikey`, `ApikeyOrganization`, `ApikeyHub`, `ApikeyOwner`, `ApikeyLog` — and the constant class `ApikeyState`.
 
-## list
+## List
 
 ```
 $client->apikeys->list(?bool $includeRevoked = null, ?int $offset = null, ?int $limit = null): Page<Apikey>
@@ -37,7 +37,7 @@ foreach ($page->items as $key) {
 
 Returns a page of `Apikey` ([get](#get)).
 
-## get
+## Get
 
 ```
 $client->apikeys->get(string|Apikey $apikey): Apikey
@@ -66,7 +66,7 @@ Returns an `Apikey`:
 
 An unknown uuid answers `404 unknown_apikey`. The raw key itself is never returned: it is shown once, when the key is created.
 
-## logs
+## Logs
 
 ```
 $client->apikeys->logs(string|Apikey $apikey, ?int $offset = null, ?int $limit = null): Page<ApikeyLog>

@@ -136,6 +136,7 @@ final class TradingResourceTest extends TestCase
             [403, 'user_not_in_scope', fn () => $this->trading->buy('c-1', Asset::ETH, '25.00')],
             [404, 'unknown_user', fn () => $this->trading->list(user: 'c-x')],
             [403, 'forbidden_permission', fn () => $this->trading->list()],
+            [429, 'daily_buy_limit_exceeded', fn () => $this->trading->buy('c-1', Asset::ETH, '25.00')],   // sandbox only
         ];
         foreach ($cases as [$status, $code, $call]) {
             $this->transport->willAnswer($status, self::json(['error' => true, 'message' => $code, 'code' => $status]));

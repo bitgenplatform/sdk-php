@@ -77,14 +77,15 @@ class BankResource
      * Withdraw EUR to the customer's IBAN — `$iban` / `$bank` / `$bic` update the bank details first
      *
      * @param UserRef          $user
-     * @param string|int|float $amount EUR, rounded to 2 decimals by the API
+     * @param string|int|float $amount         EUR, rounded to 2 decimals by the API
+     * @param string|null      $idempotencyKey 64 characters max, unique per customer: replaying it returns the same withdrawal
      *
      * @throws BitgenException          the API answered an error, or no HTTP answer was received
      * @throws InvalidArgumentException an argument is invalid — nothing was sent
      */
-    public function withdraw(string|Created|Customer|Account|UserSummary|OrderUser $user, string|int|float $amount, ?string $iban = null, ?string $bank = null, ?string $bic = null): BankWithdrawal
+    public function withdraw(string|Created|Customer|Account|UserSummary|OrderUser $user, string|int|float $amount, ?string $iban = null, ?string $bank = null, ?string $bic = null, ?string $idempotencyKey = null): BankWithdrawal
     {
-        $body = array_filter(['amount' => Amount::normalize($amount), 'iban' => $iban, 'bank' => $bank, 'bic' => $bic], static fn (mixed $value): bool => $value !== null);
+        $body = array_filter(['amount' => Amount::normalize($amount), 'iban' => $iban, 'bank' => $bank, 'bic' => $bic, 'idempotencyKey' => $idempotencyKey], static fn (mixed $value): bool => $value !== null);
 
         return BankWithdrawal::fromArray(Cast::answer($this->http->put('/bank/' . self::user($user), $body)));
     }

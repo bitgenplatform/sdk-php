@@ -101,6 +101,9 @@ final class BankResourceTest extends TestCase
 
         $this->bank->withdraw('c-1', 12.5, bank: 'BNP');
         self::assertSame('{"amount":"12.5","bank":"BNP"}', $this->transport->last()['body']);
+
+        $this->bank->withdraw('c-1', 12.5, idempotencyKey: 'w-42');
+        self::assertSame('{"amount":"12.5","idempotencyKey":"w-42"}', $this->transport->last()['body']);
     }
 
     public function testCreditTargetsAUserOrAWireMessage(): void

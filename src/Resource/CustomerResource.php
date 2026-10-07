@@ -41,6 +41,7 @@ class CustomerResource
      * @param string|null        $fin            tax identification number, 100 characters max
      * @param bool|null          $needActivation default true: activation email, account `CREATED` until activated — false: usable right away, no email
      * @param bool|null          $notify         default true: the customer receives BITGEN's emails (newsletter) — false: none
+     * @param bool|null          $canLogin       default true: the customer may sign in to the BITGEN web application — false: they cannot, and the activation answers only their uuid instead of a session
      * @param string|null        $locale         `FR` (default) or `EN` — a `Locale` constant
      * @param string|null        $organization   category: `CUSTOMER` (default) or `B2B` (also opens a KYB file) — an `OrganizationCategory` constant; `BUSINESS` is reserved to platform administrators
      *
@@ -55,6 +56,7 @@ class CustomerResource
         ?string $fin = null,
         ?bool $needActivation = null,
         ?bool $notify = null,
+        ?bool $canLogin = null,
         ?string $locale = null,
         ?string $organization = null,
     ): Created {
@@ -66,6 +68,7 @@ class CustomerResource
                 'fin' => $fin,
                 'needActivation' => $needActivation,
                 'notify' => $notify,
+                'canLogin' => $canLogin,
             ]),
             // Only the manager comes from the caller: the organization is always the scope, and no role is ever sent (the API takes ROLE_USER)
             'group' => ['manager' => $manager, 'organization' => $this->http->scope],

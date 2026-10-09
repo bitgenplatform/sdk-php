@@ -11,9 +11,9 @@ use Bitgen\Sdk\BitgenClient;
 use Bitgen\Sdk\Env;
 
 $client = new BitgenClient(
-    scope: 'YOUR_SCOPE_UUID',   // uuid of the organization that owns the key
+    scope: 'YOUR_ORGANIZATION_SCOPE',   // uuid of the organization that owns the key
     apiKey: 'YOUR_API_KEY',
-    env: Env::SANDBOX,          // Env::PRODUCTION by default
+    env: Env::SANDBOX,                  // Env::PRODUCTION by default
 );
 ```
 

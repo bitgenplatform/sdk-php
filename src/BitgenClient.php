@@ -26,7 +26,7 @@ use InvalidArgumentException;
  * An invalid configuration throws an InvalidArgumentException here, before any request is sent.
  *
  * ```php
- * $client = new BitgenClient(scope: 'YOUR_SCOPE_UUID', apiKey: 'YOUR_API_KEY', env: Env::SANDBOX);
+ * $client = new BitgenClient(scope: 'YOUR_ORGANIZATION_SCOPE', apiKey: 'YOUR_API_KEY', env: Env::SANDBOX);
  * ```
  */
 class BitgenClient

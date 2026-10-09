@@ -30,7 +30,7 @@ foreach ($wallets as $wallet) {
     echo $wallet->asset->iso, ' ', $wallet->balance, ' ', $wallet->address, PHP_EOL;   // ETH 0.5 0xabc…
 }
 
-$treasury = $client->custody->wallets('YOUR_SCOPE_UUID');   // the treasury wallets of your organization
+$treasury = $client->custody->wallets('YOUR_ORGANIZATION_SCOPE');   // the treasury wallets of your organization
 ```
 
 Returns a plain PHP array of `Wallet` (a `list<Wallet>`, not a `Page`: the API answers the whole list), without their `history`:

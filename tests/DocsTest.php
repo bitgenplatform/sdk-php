@@ -63,7 +63,7 @@ final class DocsTest extends TestCase
     {
         return "<?php\n"
             . 'require ' . var_export(realpath(self::ROOT . '/vendor/autoload.php'), true) . ";\n"
-            . sprintf("\$client = new \\Bitgen\\Sdk\\BitgenClient(scope: 'YOUR_SCOPE_UUID', apiKey: 'YOUR_API_KEY', host: '127.0.0.1', port: %d, isSsl: false);\n", self::$port)
+            . sprintf("\$client = new \\Bitgen\\Sdk\\BitgenClient(scope: 'YOUR_ORGANIZATION_SCOPE', apiKey: 'YOUR_API_KEY', host: '127.0.0.1', port: %d, isSsl: false);\n", self::$port)
             . "\$customer = new \\Bitgen\\Sdk\\Model\\Created('CUSTOMER_UUID');\n";
     }
 

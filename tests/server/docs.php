@@ -93,7 +93,7 @@ $customer = [
     'uuid' => 'CUSTOMER_UUID', 'state' => 'ENABLED', 'isAvailable' => true, 'createdAt' => 1699000000, 'login' => 'jean@valjean.fr', 'canLogin' => true,
     'account' => customerAccount(), 'client' => ['roles' => ['ROLE_USER'], 'hasTfa' => false, 'hasPhishing' => false, 'isValid' => true],
     'action' => ['setup' => setup()], 'identity' => identity('KYC'), 'business' => [],
-    'collaborations' => ['collaborator' => [['uuid' => 'collaboration-1', 'state' => 'ENABLED', 'roles' => ['ROLE_USER'], 'organization' => 'ACME', 'organizationUuid' => 'YOUR_SCOPE_UUID', 'manager' => 'MANAGER_UUID']], 'manager' => []],
+    'collaborations' => ['collaborator' => [['uuid' => 'collaboration-1', 'state' => 'ENABLED', 'roles' => ['ROLE_USER'], 'organization' => 'ACME', 'organizationUuid' => 'YOUR_ORGANIZATION_SCOPE', 'manager' => 'MANAGER_UUID']], 'manager' => []],
     'alert' => [],
 ];
 $account = ['uuid' => 'CUSTOMER_UUID', 'identity' => identity('KYC'), 'business' => [], 'account' => array_merge(customerAccount(), ['address' => ['uuid' => 'address-1', 'address' => '1 rue de Paris, 75001 Paris']]), 'notifications' => ['login' => true, 'newsletter' => false], 'setup' => setup()];
@@ -125,7 +125,7 @@ function order(string $uuid, string $side, string $state, string $amount, ?strin
 {
     return [
         'uuid' => $uuid, 'state' => $state, 'side' => $side, 'amount' => $amount, 'reference' => $reference, 'received' => $received, 'executedPrice' => $price, 'fee' => $fee,
-        'completedAt' => $completedAt, 'createdAt' => 1701000000, 'user' => ['uuid' => 'CUSTOMER_UUID', 'login' => 'jean@valjean.fr'], 'organization' => ['uuid' => 'YOUR_SCOPE_UUID', 'name' => 'ACME'],
+        'completedAt' => $completedAt, 'createdAt' => 1701000000, 'user' => ['uuid' => 'CUSTOMER_UUID', 'login' => 'jean@valjean.fr'], 'organization' => ['uuid' => 'YOUR_ORGANIZATION_SCOPE', 'name' => 'ACME'],
         'asset' => ['uuid' => $asset['uuid'], 'iso' => $asset['iso'], 'label' => $asset['label']],
     ];
 }
@@ -146,7 +146,7 @@ function assetRef(array $asset): array
 }
 
 $owner = ['uuid' => 'CUSTOMER_UUID', 'state' => 'ENABLED', 'login' => 'jean@valjean.fr', 'account' => ['firstname' => 'Jean', 'lastname' => 'Valjean', 'fin' => null]];
-$organization = ['uuid' => 'YOUR_SCOPE_UUID', 'state' => 'ENABLED', 'name' => 'ACME', 'hub' => null];
+$organization = ['uuid' => 'YOUR_ORGANIZATION_SCOPE', 'state' => 'ENABLED', 'name' => 'ACME', 'hub' => null];
 
 /**
  * @param array<string, mixed> $owner
@@ -201,7 +201,7 @@ $cores = [
 $movement = [
     'uuid' => 'MOVEMENT_UUID', 'state' => 'COMPLETED', 'kind' => 'STAKE', 'provider' => 'figment_sol', 'amount' => '2', 'createdAt' => 1701000000, 'updatedAt' => 1701003600,
     'staking' => ['uuid' => 'POSITION_UUID', 'state' => 'ENABLED', 'amount' => '2', 'error' => null, 'data' => ['rewards' => '0.0123', 'lastRewardAt' => 1701090000], 'createdAt' => 1701000000, 'updatedAt' => 1701090000, 'core' => ['uuid' => 'CORE_UUID', 'name' => 'figment_sol', 'label' => 'Figment SOL']],
-    'owner' => $owner, 'asset' => assetRef($assets['sol']), 'organization' => ['uuid' => 'YOUR_SCOPE_UUID', 'state' => 'ENABLED', 'name' => 'ACME'],
+    'owner' => $owner, 'asset' => assetRef($assets['sol']), 'organization' => ['uuid' => 'YOUR_ORGANIZATION_SCOPE', 'state' => 'ENABLED', 'name' => 'ACME'],
 ];
 $stakingOperations = [
     ['txId' => 'stk-op-1', 'movement' => 'MOVEMENT_UUID', 'asset' => 'SOL', 'kind' => 'STAKE', 'amount' => '2', 'price' => 128.4, 'value' => 256.8, 'event' => 'validated', 'provider' => 'figment_sol', 'date' => 1701003600],
@@ -237,7 +237,7 @@ $deliveries = [
 $apikeys = [
     'APIKEY_UUID' => [
         'uuid' => 'APIKEY_UUID', 'state' => 'ENABLED', 'name' => 'backend', 'permissions' => ['customer.read', 'customer.write', 'bank.read', 'custody.read', 'custody.write', 'trading.read', 'trading.write'], 'expireAt' => 1735689600, 'createdAt' => 1699000000,
-        'organization' => ['uuid' => 'YOUR_SCOPE_UUID', 'state' => 'ENABLED', 'name' => 'ACME', 'hub' => null, 'owner' => ['uuid' => 'owner-1', 'login' => 'ceo@acme.fr', 'firstname' => 'Anne', 'lastname' => 'Martin']],
+        'organization' => ['uuid' => 'YOUR_ORGANIZATION_SCOPE', 'state' => 'ENABLED', 'name' => 'ACME', 'hub' => null, 'owner' => ['uuid' => 'owner-1', 'login' => 'ceo@acme.fr', 'firstname' => 'Anne', 'lastname' => 'Martin']],
     ],
 ];
 $apikeyLogs = [
